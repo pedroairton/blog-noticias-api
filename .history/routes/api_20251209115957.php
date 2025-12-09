@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\NewsController;
@@ -86,21 +85,14 @@ Route::prefix('v1')->group(function(){
             Route::delete('/{id}', [TagController::class, 'destroy']);
         });
 
-        Route::prefix('admin/admins')->middleware('can:manage-admins')->group(function(){
-            Route::get('/', [AdminController::class, 'index']);
-            Route::post('/', [AdminController::class, 'store']);
-            Route::get('/{id}', [AdminController::class, 'show']);
-            Route::put('/{id}', [AdminController::class, 'update']);
-            Route::delete('/{id}', [AdminController::class, 'destroy']);
-            Route::patch('/{id}/restore', [AdminController::class, 'restore']);
-            Route::delete('/{id}/change-role', [AdminController::class, 'changeRole']);
-        });
-
-        Route::prefix('profile')->group(function() {
-            Route::get('/', [AdminController::class, 'profile']);
-            Route::put('/', [AdminController::class, 'updateProfile']);
-            Route::put('/password', [AdminController::class, 'updatePassword']);
-            Route::post('/avatar', [AdminController::class, 'updateAvatar']);
-        });
+        // Route::prefix('admin/admins')->middleware('can:manage-admins')->group(function(){
+        //     Route::get('/', [AdminController::class, 'index']);
+        //     Route::post('/', [AdminController::class, 'store']);
+        //     Route::get('/{id}', [AdminController::class, 'show']);
+        //     Route::put('/{id}', [AdminController::class, 'update']);
+        //     Route::delete('/{id}', [AdminController::class, 'destroy']);
+        //     Route::patch('/{id}/restore', [AdminController::class, 'restore']);
+        //     Route::delete('/{id}/change-role', [AdminController::class, 'changeRole']);
+        // });
     });
 });

@@ -95,12 +95,5 @@ Route::prefix('v1')->group(function(){
             Route::patch('/{id}/restore', [AdminController::class, 'restore']);
             Route::delete('/{id}/change-role', [AdminController::class, 'changeRole']);
         });
-
-        Route::prefix('profile')->group(function() {
-            Route::get('/', [AdminController::class, 'profile']);
-            Route::put('/', [AdminController::class, 'updateProfile']);
-            Route::put('/password', [AdminController::class, 'updatePassword']);
-            Route::post('/avatar', [AdminController::class, 'updateAvatar']);
-        });
     });
 });
