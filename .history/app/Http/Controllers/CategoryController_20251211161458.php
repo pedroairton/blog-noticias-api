@@ -59,61 +59,7 @@ class CategoryController extends Controller
     public function show($id){
         $category = Category::withCount('news')
         ->findOrFail($id);
-
+        
         return response()->json($category);
-    }
-
-    public function update(Request $request, $id){
-        $category = Category::findOrFail($id);
-
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $id,
-            'description' => 'nullable|string',
-            'slug' => 'required|string|unique:categories,slug,' . $id,
-            'is_active' => 'boolean',
-        ]);
-
-        $category->update($request->all());
-
-        return response()->json([
-            'message' => 'Categoria atualizada com sucesso',
-            'category' => $category
-        ]);
-    }
-
-    public function destroy($id){
-        $category = Category::findOrFail($id);
-
-        if($category->news()->count() > 0) {
-            return response()->json([
-                'message' => 'Não é possível excluir a categoria pois há notícias vinculadas'
-            ], 422);
-        }
-
-        $category->delete();
-
-        return response()->json([
-            'message' => 'Categoria excluída com sucesso'
-        ]);
-    }
-
-    public function restore($id){
-        $category = Category::withTrashed()->findOrFail($id);
-        $category->restore();
-
-        return response()->json([
-            'message' => 'Categoria restaurada com sucesso',
-            'category' => $category
-        ]);
-    }
-
-    public function toggleStatus($id){
-        $category = Category::findOrFail($id);
-        $category->update(['is_active' => !$category->is_active]);
-
-        return response()->json([
-            'message' => 'Status da categoria alterado',
-            'category' => $category
-        ]);
     }
 }

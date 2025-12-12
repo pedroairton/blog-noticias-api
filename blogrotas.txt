@@ -1,0 +1,34 @@
+home:
+últimas 4 notícias
+4 mais lidas
+uma seção por categoria;
+4 últimas notícias por categoria
+
+--
+
+categoria:
+notícias paginadas
+
+--
+
+navbar:
+exibir categorias na navbar
+barra de pesquisa p/ buscar noticia
+
+
+-----
+
+admin:
+post noticia
+edit noticia; (role)
+delete noticia; (role)
+
+
+
+
+
+
+
+exc
+green
+nau

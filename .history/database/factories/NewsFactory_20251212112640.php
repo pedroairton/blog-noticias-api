@@ -31,8 +31,8 @@ class NewsFactory extends Factory
             'is_published' => $this->faker->boolean(80),
             'published_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'views_count' => $this->faker->numberBetween(0, 1000),
-            'category_id' => $this->faker->numberBetween(1, 7),
-            'author_id' => $this->faker->numberBetween(1, 4),
+            'category_id' => $this->faker->numberBetween(0, 7),
+            'author_id' => $this->faker->numberBetween(0, 4),
         ];
     }
     public function published(): Factory {

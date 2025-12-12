@@ -96,24 +96,4 @@ class CategoryController extends Controller
             'message' => 'Categoria excluída com sucesso'
         ]);
     }
-
-    public function restore($id){
-        $category = Category::withTrashed()->findOrFail($id);
-        $category->restore();
-
-        return response()->json([
-            'message' => 'Categoria restaurada com sucesso',
-            'category' => $category
-        ]);
-    }
-
-    public function toggleStatus($id){
-        $category = Category::findOrFail($id);
-        $category->update(['is_active' => !$category->is_active]);
-
-        return response()->json([
-            'message' => 'Status da categoria alterado',
-            'category' => $category
-        ]);
-    }
 }
