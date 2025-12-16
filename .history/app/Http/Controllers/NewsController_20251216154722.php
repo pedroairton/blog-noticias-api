@@ -174,6 +174,7 @@ class NewsController extends Controller
     }
     public function store(Request $request)
     {
+        dd('test');
         $user = auth()->user();
 
         $validator = Validator::make($request->all(), [

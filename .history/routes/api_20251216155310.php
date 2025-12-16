@@ -40,7 +40,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/tag/{tagSlug}', [NewsController::class, 'byTag']);
     });
 });
-Route::prefix('v1')->middleware(['auth:sanctum', 'api'])->group(function () {
+Route::prefix('v1')->group(function () {
     Route::prefix('dashboard')->group(function () {
         Route::get('/', [NewsController::class, 'index']);
         Route::post('/', [NewsController::class, 'store']);

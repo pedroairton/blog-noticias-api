@@ -43,7 +43,7 @@ Route::prefix('v1')->group(function () {
 Route::prefix('v1')->middleware(['auth:sanctum', 'api'])->group(function () {
     Route::prefix('dashboard')->group(function () {
         Route::get('/', [NewsController::class, 'index']);
-        Route::post('/', [NewsController::class, 'store']);
+        Route::post('/', [NewsController::class, 'store'])->middleware('can:create,App\Models\News');
 
         // crud news
         Route::get('/my-news', [NewsController::class, 'myNews']);

@@ -84,7 +84,7 @@ class News extends Model
         return $this->hasMany(NewsGallery::class, 'news_id');
     }
     public function tags(){
-        return $this->belongsToMany(Tag::class, 'news_tag')->withTimestamps();
+        return $this->belongsToMany(Tag::class, 'news_tags')->withTimestamps();
     }
     public function scopePublished($query){
         return $query->where('is_published', true)
