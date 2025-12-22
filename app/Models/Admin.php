@@ -60,7 +60,7 @@ class Admin extends Model
 
     public function isSuperAdmin()
     {
-        return $this->role === 'super_admin';
+        return $this->role === 'superadmin';
     }
     public function isAuthor()
     {

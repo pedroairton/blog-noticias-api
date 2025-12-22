@@ -40,6 +40,7 @@ class NewsController extends Controller
                 });
             }
         }
+        
         $perPage = $request->get('per_page', 10);
         $news = $query->paginate($perPage);
         return response()->json($news);

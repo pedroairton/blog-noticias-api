@@ -22,13 +22,3 @@ admin:
 post noticia
 edit noticia; (role)
 delete noticia; (role)
-
-
-
-
-
-
-
-exc
-green
-nau
