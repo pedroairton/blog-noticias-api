@@ -42,7 +42,7 @@ class Admin extends Model
 
     public function news()
     {
-        return $this->hasMany(News::class);
+        return $this->hasMany(News::class, 'author_id');
     }
 
     public function scopeSuperAdmin($query)

@@ -7,7 +7,6 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NewsGalleryController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
-use App\Models\User;
 
 Route::prefix('v1')->group(function () {
     Route::get('/health', function () {
