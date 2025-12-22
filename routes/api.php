@@ -7,7 +7,6 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NewsGalleryController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
-use App\Models\User;
 
 Route::prefix('v1')->group(function () {
     Route::get('/health', function () {
@@ -42,21 +41,24 @@ Route::prefix('v1')->group(function () {
 });
 Route::prefix('v1')->middleware(['auth:sanctum', 'api'])->group(function () {
     Route::prefix('dashboard')->group(function () {
+        Route::get('/stats', [NewsController::class, 'dashboardStats']);
+    });
+    // crud news
+    Route::prefix('admin/news')->middleware('author-or-superadmin')->group(function () {
         Route::get('/', [NewsController::class, 'index']);
         Route::post('/', [NewsController::class, 'store']);
-
-        // crud news
+    
         Route::get('/my-news', [NewsController::class, 'myNews']);
         Route::get('/drafts', [NewsController::class, 'drafts']);
         Route::get('/scheduled', [NewsController::class, 'scheduled']);
-        Route::get('/{id}', [NewsController::class, 'show'])->middleware('can:view,news');
-        Route::put('/{id}', [NewsController::class, 'update'])->middleware('can:update,news');
-        Route::delete('/{id}', [NewsController::class, 'destroy'])->middleware('can:delete,news');
-        Route::patch('/{id}/publish', [NewsController::class, 'publish'])->middleware('can:publish,news');
-        Route::patch('/{id}/unpublish', [NewsController::class, 'unpublish'])->middleware('can:unpublish,news');
-        Route::patch('/{id}/restore', [NewsController::class, 'restore'])->middleware('can:restore,news');
-        Route::delete('/{id}/force-delete', [NewsController::class, 'forceDelete'])->middleware('can:force-delete,news');
-
+        Route::get('/{id}', [NewsController::class, 'show']);
+        Route::put('/{id}', [NewsController::class, 'update']);
+        Route::delete('/{id}', [NewsController::class, 'destroy']);
+        Route::patch('/{id}/publish', [NewsController::class, 'publish']);
+        Route::patch('/{id}/unpublish', [NewsController::class, 'unpublish']);
+        Route::patch('/{id}/restore', [NewsController::class, 'restore']);
+        Route::delete('/{id}/force-delete', [NewsController::class, 'forceDelete']);
+    
         Route::post('/{id}/tags', [NewsController::class, 'syncTags']);
         Route::delete('/{id}/tags/{tagId}', [NewsController::class, 'detachTag']);
     });
@@ -72,24 +74,28 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'api'])->group(function () {
     });
 
     // crud categories
-    Route::prefix('admin/categories')->middleware('can:manage-categories')->group(function () {
+    Route::prefix('admin/categories')->group(function () {
         Route::get('/', [CategoryController::class, 'index']);
-        Route::post('/', [CategoryController::class, 'store']);
-        Route::put('/{id}', [CategoryController::class, 'update']);
-        Route::delete('/{id}', [CategoryController::class, 'destroy']);
-        Route::patch('/{id}/restore', [CategoryController::class, 'restore']);
-        Route::delete('/{id}/toggle-status', [CategoryController::class, 'toggleStatus']);
+        Route::group(['middleware' => 'superadmin'], function () {
+            Route::post('/', [CategoryController::class, 'store']);
+            Route::put('/{id}', [CategoryController::class, 'update']);
+            Route::delete('/{id}', [CategoryController::class, 'destroy']);
+            Route::patch('/{id}/restore', [CategoryController::class, 'restore']);
+            Route::delete('/{id}/toggle-status', [CategoryController::class, 'toggleStatus']);
+        });
     });
 
-    Route::prefix('admin/tags')->middleware('can:manage-tags')->group(function () {
+    Route::prefix('admin/tags')->group(function () {
         Route::get('/', [TagController::class, 'index']);
-        Route::post('/', [TagController::class, 'store']);
-        Route::get('/{id}', [TagController::class, 'show']);
-        Route::put('/{id}', [TagController::class, 'update']);
-        Route::delete('/{id}', [TagController::class, 'destroy']);
+        Route::group(['middleware' => 'superadmin'], function () {
+            Route::post('/', [TagController::class, 'store']);
+            Route::get('/{id}', [TagController::class, 'show']);
+            Route::put('/{id}', [TagController::class, 'update']);
+            Route::delete('/{id}', [TagController::class, 'destroy']);
+        });
     });
 
-    Route::prefix('admin/admins')->middleware('can:manage-admins')->group(function () {
+    Route::prefix('admin/admins')->middleware('superadmin')->group(function () {
         Route::get('/', [AdminController::class, 'index']);
         Route::post('/', [AdminController::class, 'store']);
         Route::get('/{id}', [AdminController::class, 'show']);
