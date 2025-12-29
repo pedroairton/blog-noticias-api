@@ -177,6 +177,12 @@ class NewsController extends Controller
     {
         $user = auth()->user();
 
+        if($request->has('is_published')) {
+            $request->merge([
+                'is_published' => filter_var($request->is_published, FILTER_VALIDATE_BOOLEAN)
+            ]);
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'subtitle' => 'nullable|string|max:500',
