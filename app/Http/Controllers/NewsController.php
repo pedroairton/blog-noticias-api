@@ -150,7 +150,7 @@ class NewsController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($user) {
-            $query->where('user_id', $user->id);
+            $query->where('author_id', $user->id);
         }
 
         if ($request->has('status')) {
@@ -193,6 +193,7 @@ class NewsController extends Controller
         ]);
 
         if ($validator->fails()) {
+            return response()->json($request->all(), 422);
             return response()->json([
                 'errors' => $validator->errors()
             ], 422);
