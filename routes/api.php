@@ -67,7 +67,8 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'api'])->group(function () {
     Route::prefix('admin/news/{newsId}/gallery')->group(function () {
         Route::get('/', [NewsGalleryController::class, 'index']);
         Route::post('/', [NewsGalleryController::class, 'store']);
-        Route::post('/upload-multiple', [NewsGalleryController::class, 'storeMultiple']);
+        Route::post('/single', [NewsGalleryController::class, 'storeSingle']);
+        // Route::post('/upload-multiple', [NewsGalleryController::class, 'storeMultiple']);
         Route::put('/reorder', [NewsGalleryController::class, 'reorder']);
         Route::put('/{id}', [NewsGalleryController::class, 'update']);
         Route::delete('/{id}', [NewsGalleryController::class, 'destroy']);

@@ -81,7 +81,7 @@ class News extends Model
         return $this->belongsTo(Admin::class, 'author_id');
     }
     public function gallery(){
-        return $this->hasMany(NewsGallery::class, 'news_id');
+        return $this->hasMany(NewsGallery::class, 'news_id')->orderBy('position', 'asc');
     }
     public function tags(){
         return $this->belongsToMany(Tag::class, 'news_tag')->withTimestamps();
