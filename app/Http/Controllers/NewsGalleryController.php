@@ -48,10 +48,10 @@ class NewsGalleryController extends Controller
             foreach ($request->file('images') as $index => $image) {
                 $fileName = Str::uuid() . '.' . $image->getClientOriginalExtension();
                 $filePath = 'news/gallery/' . $fileName;
-                
+
                 Storage::disk('public')->put($filePath, file_get_contents($image));
 
-                $thumbnailPath = $this->createThumbnail($image,$filePath);
+                $thumbnailPath = $this->createThumbnail($image, $filePath);
 
                 $galleryImage = NewsGallery::create([
                     'news_id' => $news->id,
@@ -78,7 +78,8 @@ class NewsGalleryController extends Controller
             'images' => $uploadedImages
         ], 201);
     }
-    public function storeSingle(Request $request, $newsId){
+    public function storeSingle(Request $request, $newsId)
+    {
         $news = News::findOrFail($newsId);
 
         $this->authorize('update', $news);
@@ -90,7 +91,7 @@ class NewsGalleryController extends Controller
             'position' => 'nullable|integer',
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'message' => 'Erro ao enviar imagem',
                 'errors' => $validator->errors()
@@ -101,12 +102,12 @@ class NewsGalleryController extends Controller
 
         $fileName = Str::uuid() . '.' . $image->getClientOriginalExtension();
         $filePath = 'news/gallery/' . $fileName;
-       
+
         Storage::disk('public')->put($filePath, file_get_contents($image));
 
-        $thumbnailPath = $this->createThumbnail($image,$filePath);
+        $thumbnailPath = $this->createThumbnail($image, $filePath);
 
-        $position = $request->position ?? ($news->gallery()->max('position') ?? 0)+ 1;
+        $position = $request->position ?? ($news->gallery()->max('position') ?? 0) + 1;
 
         $galleryImage = NewsGallery::create([
             'news_id' => $news->id,
@@ -129,7 +130,8 @@ class NewsGalleryController extends Controller
             'image' => $galleryImage
         ], 201);
     }
-    public function update(Request $request, $newsId, $id){
+    public function update(Request $request, $newsId, $id)
+    {
         $galleryImage = NewsGallery::where('news_id', $newsId)->findOrFail($id);
 
         $this->authorize('update', $galleryImage);
@@ -140,7 +142,7 @@ class NewsGalleryController extends Controller
             'position' => 'nullable|integer',
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'message' => 'Erro ao enviar imagem',
                 'errors' => $validator->errors()
@@ -158,7 +160,8 @@ class NewsGalleryController extends Controller
             'image' => $galleryImage
         ]);
     }
-    public function reorder(Request $request, $newsId){
+    public function reorder(Request $request, $newsId)
+    {
         $news = News::findOrFail($newsId);
 
         $this->authorize('update', $news);
@@ -169,26 +172,27 @@ class NewsGalleryController extends Controller
             'images.*.position' => 'required|integer',
         ]);
 
-        foreach($request->images as $imageData) {
+        foreach ($request->images as $imageData) {
             NewsGallery::where('id', $imageData['id'])
-            ->where('news_id', $newsId)
-            ->update(['position' => $imageData['position']]);
+                ->where('news_id', $newsId)
+                ->update(['position' => $imageData['position']]);
         }
 
         return response()->json([
             'message' => 'Galeria reordenada com sucesso'
         ]);
     }
-    public function destroy($newsId, $id){
+    public function destroy($newsId, $id)
+    {
         $galleryImage = NewsGallery::where('news_id', $newsId)->findOrFail($id);
 
         $this->authorize('update', $galleryImage);
 
-        if($galleryImage->image_path){
+        if ($galleryImage->image_path) {
             Storage::disk('public')->delete($galleryImage->image_path);
         }
 
-        if($galleryImage->thumbnail_path){
+        if ($galleryImage->thumbnail_path) {
             Storage::disk('public')->delete($galleryImage->thumbnail_path);
         }
 
@@ -198,8 +202,9 @@ class NewsGalleryController extends Controller
             'message' => 'Imagem excluída com sucesso'
         ]);
     }
-    private function createThumbnail($image, $fileName){
-        try{
+    private function createThumbnail($image, $fileName)
+    {
+        try {
             $thumbnailPath = 'news/gallery/thumbnails/' . $fileName;
 
             Storage::disk('public')->put($thumbnailPath, file_get_contents($image));
