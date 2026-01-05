@@ -55,7 +55,7 @@ class NewsGallery extends Model
     }
     public function getDimensionsFormattedAttribute(){
         if($this->dimensions && isset($this->dimensions['width']) && isset($this->dimensions['height'])){
-            return $this->dimensions['width'] . 'x' . $this->dimensions['height'];
+            return "{$this->dimensions['width']} x {$this->dimensions['height']}";
         }
         return 'N/A';
     }
