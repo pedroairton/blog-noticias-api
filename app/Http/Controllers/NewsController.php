@@ -235,6 +235,11 @@ class NewsController extends Controller
 
         $news = News::create($data);
 
+        if($news->gallery()->count() > 0){
+            $processedContent = $this->processContentImages($news, $news->content);
+            $news->update(['content' => $processedContent]);
+        }
+
         if ($request->has('tags')) {
             $news->tags()->sync($request->tags);
         }
@@ -325,6 +330,11 @@ class NewsController extends Controller
         // Sincronizar tags se fornecidas
         if ($request->has('tags')) {
             $news->tags()->sync($request->tags);
+        }
+
+        if($news->gallery()->count() > 0){
+            $processedContent = $this->processContentImages($news, $news->content);
+            $news->update(['content' => $processedContent]);
         }
 
         return response()->json([
@@ -462,5 +472,29 @@ class NewsController extends Controller
             ];
         }
         return response()->json($stats);
+    }
+    private function processContentImages(News $news, string $content): string {
+        preg_match_all('/{{IMAGE_PLACEHOLDER_(\d+)}}/', $content, $matches);
+
+        $placeholders = $matches[0] ?? [];
+        
+        if(empty($placeholders)) {
+            return $content;
+        }
+
+        $galleryImages = $news->gallery()->get();
+
+        foreach($placeholders as $placeholder) {
+            preg_match('/{{IMAGE_PLACEHOLDER_(\d+)}}/', $placeholder, $match);
+            $index = $match[1] ?? null;
+
+            if($index !== null && isset($galleryImages[$index])) {
+                $image = $galleryImages[$index];
+                $imageUrl = asset('storage/' . $image->image_path);
+                $content = str_replace($placeholder, $imageUrl, $content);
+            }
+        }
+
+        return $content;
     }
 }
