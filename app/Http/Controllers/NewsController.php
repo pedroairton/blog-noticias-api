@@ -199,9 +199,8 @@ class NewsController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($request->all(), 422);
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(), $request->all()
             ], 422);
         }
 

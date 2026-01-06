@@ -11,25 +11,25 @@ class TagController extends Controller
     public function index()
     {
         $tags = Tag::withCount('news')
-        ->where('is_active', true)
+        // ->where('is_active', true)
         ->orderBy('name')
         ->paginate(20);
 
-        return view('admin.tags.index', compact('tags'));
+        return response()->json($tags);
     }
     public function store(Request $request){
         $request->validate([
             'name' => 'required|string|max:32|unique:tags,name',
             'slug' => 'nullable|string|unique:tags,slug',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            // 'is_active' => 'boolean',
         ]);
 
         $tag = Tag::create([
             'name' => $request->name,
             'slug' => $request->slug ?? Str::slug($request->name),
             'description' => $request->description,
-            'is_active' => $request->get('is_active', true)
+            // 'is_active' => $request->get('is_active', true)
         ]);
 
         return response()->json([
