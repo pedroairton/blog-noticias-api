@@ -271,12 +271,18 @@ class NewsController extends Controller
             ], 403);
         }
 
+        if($request->has('is_published')) {
+            $request->merge([
+                'is_published' => filter_var($request->is_published, FILTER_VALIDATE_BOOLEAN)
+            ]);
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'sometimes|required|string|max:255',
             'subtitle' => 'nullable|string|max:500',
             'slug' => 'sometimes|string|unique:news,slug,' . $id,
             'excerpt' => 'sometimes|required|string|max:500',
-            'content' => 'sometimes|required|string',
+            'content' => 'sometimes|required|string|max:8000',
             'category_id' => 'sometimes|required|exists:categories,id',
             'main_image' => 'nullable|image|max:2048',
             'main_image_caption' => 'nullable|string|max:255',

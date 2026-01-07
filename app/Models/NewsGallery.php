@@ -35,6 +35,8 @@ class NewsGallery extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected $appends = ['image_url', 'thumbnail_url'];
+
     public function news(){
         return $this->belongsTo(News::class);
     }
@@ -51,6 +53,7 @@ class NewsGallery extends Model
         if($this->thumbnail_path){
             return asset('storage/' . $this->thumbnail_path);
         }
+        // fallback to image url
         return $this->image_url;
     }
     public function getDimensionsFormattedAttribute(){

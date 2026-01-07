@@ -44,6 +44,8 @@ class News extends Model
         'deleted_at',
     ];
 
+    protected $appends = ['main_image_url', 'content_with_full_urls'];
+
     protected static function boot()
     {
         parent::boot();
@@ -113,9 +115,36 @@ class News extends Model
     }
     public function getMainImageUrlAttribute(){
         if($this->main_image){
-            return asset('storage/news/'.$this->main_image);
+            return asset('storage/'.$this->main_image);
         }
         return null;
+    }
+    public function getContentWithFullUrlsAttribute(){
+        if(!$this->content){
+            return $this->content;
+        }
+        $content = $this->content;
+
+        $content = preg_replace_callback(
+            '/src="([^"]+)"/',
+            function ($matches) {
+                $src = $matches[1];
+                
+                // Se não for URL completa (não começa com http://, https://, data:)
+                if (!preg_match('/^(https?:|\/\/|data:)/', $src)) {
+                    // Verificar se é um caminho do storage
+                    if (strpos($src, 'storage/') !== 0) {
+                        $src = 'storage/' . $src;
+                    }
+                    return 'src="' . asset($src) . '"';
+                }
+                
+                return $matches[0];
+            },
+            $content
+        );
+
+        return $content;
     }
     public function getReadingTimeAttribute(){
         $wordCount = str_word_count(strip_tags($this->content));
