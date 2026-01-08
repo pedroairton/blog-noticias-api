@@ -40,7 +40,7 @@ class NewsController extends Controller
                 });
             }
         }
-        
+
         $perPage = $request->get('per_page', 10);
         $news = $query->paginate($perPage);
         return response()->json($news);
@@ -177,7 +177,7 @@ class NewsController extends Controller
     {
         $user = auth()->user();
 
-        if($request->has('is_published')) {
+        if ($request->has('is_published')) {
             $request->merge([
                 'is_published' => filter_var($request->is_published, FILTER_VALIDATE_BOOLEAN)
             ]);
@@ -200,7 +200,8 @@ class NewsController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors(), $request->all()
+                'errors' => $validator->errors(),
+                $request->all()
             ], 422);
         }
 
@@ -235,13 +236,18 @@ class NewsController extends Controller
 
         $news = News::create($data);
 
-        if($news->gallery()->count() > 0){
+        if ($news->gallery()->count() > 0) {
             $processedContent = $this->processContentImages($news, $news->content);
             $news->update(['content' => $processedContent]);
         }
 
         if ($request->has('tags')) {
             $news->tags()->sync($request->tags);
+        }
+
+        // Se houver imagens da galeria, processar placeholders
+        if ($request->has('gallery_processed')) {
+            $this->processContentPlaceholders($news, $request->content);
         }
 
         return response()->json([
@@ -269,7 +275,7 @@ class NewsController extends Controller
             return response()->json([
                 'message' => 'Você não tem permissão para editar esta notícia'
             ], 403);
-        }   
+        }
 
         if ($request->has('is_published')) {
             $request->merge([
@@ -282,7 +288,7 @@ class NewsController extends Controller
             'subtitle' => 'nullable|string|max:500',
             'slug' => 'sometimes|string|unique:news,slug,' . $id,
             'excerpt' => 'sometimes|required|string|max:500',
-            'content' => 'sometimes|required|string|max:8000',
+            'content' => 'sometimes|required|string',
             'category_id' => 'sometimes|required|exists:categories,id',
             'main_image' => 'nullable|image|max:2048',
             'main_image_caption' => 'nullable|string|max:255',
@@ -338,9 +344,13 @@ class NewsController extends Controller
             $news->tags()->sync($request->tags);
         }
 
-        if($news->gallery()->count() > 0){
+        if ($news->gallery()->count() > 0) {
             $processedContent = $this->processContentImages($news, $news->content);
             $news->update(['content' => $processedContent]);
+        }
+
+        if ($request->has('gallery_processed')) {
+            $this->processContentPlaceholders($news, $request->content);
         }
 
         return response()->json([
@@ -479,22 +489,55 @@ class NewsController extends Controller
         }
         return response()->json($stats);
     }
-    private function processContentImages(News $news, string $content): string {
+    private function processContentPlaceholders(News $news, string $content): void
+    {
+        // Extrair placeholders do conteúdo
+        preg_match_all('/{{(IMAGE_PLACEHOLDER_|EXISTING_IMAGE_)(\d+)}}/', $content, $matches);
+
+        $placeholders = $matches[0] ?? [];
+
+        foreach ($placeholders as $placeholder) {
+            // Determinar se é uma imagem existente ou nova
+            preg_match('/{{(IMAGE_PLACEHOLDER_|EXISTING_IMAGE_)(\d+)}}/', $placeholder, $match);
+            $type = $match[1];
+            $index = $match[2];
+
+            if ($type === 'EXISTING_IMAGE_') {
+                // Imagem existente - buscar da galeria
+                $galleryImage = $news->gallery()->find($index);
+                if ($galleryImage) {
+                    $imageUrl = asset('storage/' . $galleryImage->image_path);
+                    $content = str_replace($placeholder, $imageUrl, $content);
+                }
+            } elseif ($type === 'IMAGE_PLACEHOLDER_') {
+                // Nova imagem - será processada depois do upload
+                // Manter placeholder por enquanto
+                continue;
+            }
+        }
+
+        // Atualizar conteúdo apenas se houve substituições
+        if ($placeholders) {
+            $news->update(['content' => $content]);
+        }
+    }
+    private function processContentImages(News $news, string $content): string
+    {
         preg_match_all('/{{IMAGE_PLACEHOLDER_(\d+)}}/', $content, $matches);
 
         $placeholders = $matches[0] ?? [];
-        
-        if(empty($placeholders)) {
+
+        if (empty($placeholders)) {
             return $content;
         }
 
         $galleryImages = $news->gallery()->get();
 
-        foreach($placeholders as $placeholder) {
+        foreach ($placeholders as $placeholder) {
             preg_match('/{{IMAGE_PLACEHOLDER_(\d+)}}/', $placeholder, $match);
             $index = $match[1] ?? null;
 
-            if($index !== null && isset($galleryImages[$index])) {
+            if ($index !== null && isset($galleryImages[$index])) {
                 $image = $galleryImages[$index];
                 $imageUrl = asset('storage/' . $image->image_path);
                 $content = str_replace($placeholder, $imageUrl, $content);

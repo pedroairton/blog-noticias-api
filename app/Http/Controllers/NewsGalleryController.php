@@ -38,6 +38,7 @@ class NewsGalleryController extends Controller
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp,avif|max:2048',
             'captions.*' => 'nullable|string|max:255',
             'alt_texts.*' => 'nullable|string|max:255',
+            'existing_image_ids' => 'nullable|string',
         ]);
 
         if($validator->fails()) {
@@ -85,9 +86,20 @@ class NewsGalleryController extends Controller
             }
         }
 
+        $existingImages = [];
+        if($request->has('existing_image_ids')) {
+            $existingImageIds = json_decode($request->existing_image_ids, true);
+            if(is_array($existingImageIds)){
+                $existingImages = NewsGallery::whereIn('id', $existingImageIds)
+                ->where('news_id', $newsId)
+                ->get();
+            }
+        }
+
         return response()->json([
             'message' => count($uploadedImages) . ' imagens adicionadas com sucesso',
-            'images' => $uploadedImages
+            'images' => $uploadedImages,
+            'existing_images' => $existingImages
         ], 201);
     }
     public function storeSingle(Request $request, $newsId){
