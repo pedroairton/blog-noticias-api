@@ -269,9 +269,9 @@ class NewsController extends Controller
             return response()->json([
                 'message' => 'Você não tem permissão para editar esta notícia'
             ], 403);
-        }
+        }   
 
-        if($request->has('is_published')) {
+        if ($request->has('is_published')) {
             $request->merge([
                 'is_published' => filter_var($request->is_published, FILTER_VALIDATE_BOOLEAN)
             ]);
