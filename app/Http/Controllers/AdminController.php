@@ -22,6 +22,10 @@ class AdminController extends Controller
                 'social_linkedin'
             )
             ->paginate(20);
+
+        $authors->each(function ($author) {
+            $author->append('avatar_url');
+        });
         $admins = Admin::where('role', 'superadmin')
             ->select(
                 'name',
@@ -35,6 +39,15 @@ class AdminController extends Controller
                 'social_linkedin'
             )
             ->paginate(20);
+        $admins->each(function ($admin) {
+            $admin->append('avatar_url');
+        });
         return response()->json(['authors' => $authors, 'admins' => $admins], 200);
+    }
+    public function profile()
+    {
+        // dd(auth()->user());
+        $admin = auth()->user();
+        return response()->json($admin);
     }
 }

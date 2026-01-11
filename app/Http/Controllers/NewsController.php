@@ -7,6 +7,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\News;
 use App\Models\Tag;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -268,6 +269,9 @@ class NewsController extends Controller
     }
     public function update(Request $request, $id)
     {
+        \Log::info('Dados recebidos:', $request->all());
+        \Log::info('Headers recebidos:', $request->headers->all());
+        // return response()->json($request);
         $news = News::findOrFail($id);
         $user = auth()->user();
 

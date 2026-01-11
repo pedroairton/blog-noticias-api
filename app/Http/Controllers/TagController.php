@@ -20,18 +20,41 @@ class TagController extends Controller
         $request->validate([
             'name' => 'required|string|max:32|unique:tags,name',
             'slug' => 'nullable|string|unique:tags,slug',
-            'description' => 'nullable|string',
         ]);
 
         $tag = Tag::create([
             'name' => $request->name,
             'slug' => $request->slug ?? Str::slug($request->name),
-            'description' => $request->description,
         ]);
 
         return response()->json([
             'message' => 'Tag criada com sucesso',
             'tag' => $tag
         ], 201);
+    }
+
+    public function update(Request $request, $id) {
+        $tag = Tag::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:32|unique:tags,name,' . $id,
+            'slug' => 'nullable|string|unique:tags,slug,' . $id,
+        ]);
+
+        $tag->slug = $request->slug ?? Str::slug($request->name);
+        $tag->update($request->all());
+
+        return response()->json([
+            'message' => 'Tag atualizada com sucesso',
+            'tag' => $tag
+        ]);
+    }
+    public function destroy($id) {
+        $tag = Tag::findOrFail($id);
+        $tag->delete();
+        return response()->json([
+            'message' => 'Tag excluída com sucesso',
+            'tag' => $tag
+        ]);
     }
 }

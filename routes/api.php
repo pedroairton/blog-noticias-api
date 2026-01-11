@@ -52,7 +52,9 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'api'])->group(function () {
         Route::get('/drafts', [NewsController::class, 'drafts']);
         Route::get('/scheduled', [NewsController::class, 'scheduled']);
         Route::get('/{id}', [NewsController::class, 'show']);
-        Route::put('/{id}', [NewsController::class, 'update']);
+        // update precisa ser feito com POST, bug do laravel com PUT
+        // Route::put('/{id}', [NewsController::class, 'update']);
+        Route::post('/{id}', [NewsController::class, 'update']);
         Route::delete('/{id}', [NewsController::class, 'destroy']);
         Route::patch('/{id}/publish', [NewsController::class, 'publish']);
         Route::patch('/{id}/unpublish', [NewsController::class, 'unpublish']);
