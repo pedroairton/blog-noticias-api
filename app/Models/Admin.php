@@ -26,6 +26,7 @@ class Admin extends Model
         'social_twitter',
         'social_instagram',
         'social_linkedin',
+        'status'
     ];
 
     protected $hidden = [
