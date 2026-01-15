@@ -10,7 +10,8 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function login(Request $request){
+    public function login(Request $request)
+    {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:8'
@@ -18,7 +19,7 @@ class AuthController extends Controller
 
         $admin = Admin::where('email', $request->email)->first();
 
-        if(!$admin || !Hash::check($request->password, $admin->password)) {
+        if (!$admin || !Hash::check($request->password, $admin->password)) {
             throw ValidationException::withMessages([
                 'email' => ['As credenciais fornecidas estão incorretas']
             ]);
@@ -35,8 +36,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(Request $request){
-        if(!auth()->user()->isSuperAdmin()){
+    public function register(Request $request)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
             return response()->json(['message' => 'Apenas superadministradores podem criar novos usuários.'], 401);
         }
         $validator = Validator::make($request->all(), [
@@ -47,7 +49,7 @@ class AuthController extends Controller
             'bio' => 'nullable|string',
             'slug' => 'nullable|string|unique:admins'
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
         $admin = Admin::create([
@@ -65,23 +67,29 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function logout(Request $request){
+    public function logout(Request $request)
+    {
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'message' => 'Logout realizado'
         ]);
     }
-    public function me(Request $request){
+    public function me(Request $request)
+    {
         $admin = $request->user();
+        $admin->append('avatar_url');
 
-        return response()->json([
-            'admin' => $admin->loadCount(['news as published_news_count' => function($query){
-                $query->where('is_published', true);
-            }])
-        ]);
+        return response()->json(
+            $admin->loadCount([
+                'news as published_news_count' => function ($query) {
+                    $query->where('is_published', true);
+                }
+            ])
+        );
     }
-    public function refresh(Request $request){
+    public function refresh(Request $request)
+    {
         $admin = $request->user();
         $admin->tokens()->delete();
 

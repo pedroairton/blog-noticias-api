@@ -108,7 +108,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'api'])->group(function () {
         Route::delete('/{id}/change-role', [AdminController::class, 'changeRole']);
     });
 
-    Route::prefix('profile')->group(function () {
+    Route::prefix('profile')->middleware('auth:sanctum')->group(function () {
         Route::get('/', [AdminController::class, 'profile']);
         Route::put('/', [AdminController::class, 'updateProfile']);
         Route::put('/password', [AdminController::class, 'updatePassword']);
