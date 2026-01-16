@@ -103,6 +103,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'api'])->group(function () {
         Route::post('/', [AdminController::class, 'store']);
         Route::get('/{id}', [AdminController::class, 'show']);
         Route::put('/{id}', [AdminController::class, 'update']);
+        Route::patch('/{id}/toggle-status', [AdminController::class, 'toggleStatus']);
         Route::delete('/{id}', [AdminController::class, 'destroy']);
         Route::patch('/{id}/restore', [AdminController::class, 'restore']);
         Route::delete('/{id}/change-role', [AdminController::class, 'changeRole']);

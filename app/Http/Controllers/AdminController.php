@@ -15,6 +15,7 @@ class AdminController extends Controller
     {
         $authors = Admin::where('role', 'author')
             ->select(
+                'id',
                 'name',
                 'email',
                 'avatar',
@@ -23,7 +24,8 @@ class AdminController extends Controller
                 'social_facebook',
                 'social_twitter',
                 'social_instagram',
-                'social_linkedin'
+                'social_linkedin',
+                'status'
             )
             ->paginate(20);
 
@@ -32,6 +34,7 @@ class AdminController extends Controller
         });
         $admins = Admin::where('role', 'superadmin')
             ->select(
+                'id',
                 'name',
                 'email',
                 'avatar',
@@ -40,7 +43,8 @@ class AdminController extends Controller
                 'social_facebook',
                 'social_twitter',
                 'social_instagram',
-                'social_linkedin'
+                'social_linkedin',
+                'status'
             )
             ->paginate(20);
         $admins->each(function ($admin) {
@@ -54,7 +58,8 @@ class AdminController extends Controller
         $admin = auth()->user();
         return response()->json($admin);
     }
-    public function store(Request $request){
+    public function store(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -87,7 +92,15 @@ class AdminController extends Controller
 
         return response()->json(['message' => 'Admin criado com sucesso'], 201);
     }
-    public function updatePassword(Request $request){
+    public function toggleStatus($id)
+    {
+        $admin = Admin::findOrFail($id);
+        $admin->status = !$admin->status;
+        $admin->save();
+        return response()->json(['message' => 'Status atualizado com sucesso'], 200);
+    }
+    public function updatePassword(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required|string|min:8',
             'new_password' => 'required|string|min:8|confirmed',
@@ -114,7 +127,8 @@ class AdminController extends Controller
 
         return response()->json(['message' => 'Senha atualizada com sucesso'], 200);
     }
-    public function updateAvatar(Request $request){
+    public function updateAvatar(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
@@ -132,8 +146,8 @@ class AdminController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        if($request->hasFile('avatar')){
-            if($admin->avatar){
+        if ($request->hasFile('avatar')) {
+            if ($admin->avatar) {
                 Storage::disk('public')->delete($admin->avatar);
             }
 
@@ -143,9 +157,23 @@ class AdminController extends Controller
 
         return response()->json(['message' => 'Avatar atualizado com sucesso', 'img_path' => $admin->avatar], 200);
     }
-    public function updateProfile(Request $request){
+    public function updateProfile(Request $request)
+    {
 
         $admin = auth()->user();
+
+        // return response()->json([
+        //     'debug' => [
+        //         'has_file_avatar' => $request->hasFile('avatar'),
+        //         'file_avatar_info' => $request->file('avatar') ? [
+        //             'original_name' => $request->file('avatar')->getClientOriginalName(),
+        //             'size' => $request->file('avatar')->getSize(),
+        //             'mime_type' => $request->file('avatar')->getMimeType(),
+        //             'is_valid' => $request->file('avatar')->isValid(),
+        //         ] : null,
+        //         'all_request_data' => $request->all(),
+        //         'files_in_request' => $request->allFiles(),
+        //     ]]);
 
         $validator = Validator::make($request->all(), [
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
@@ -170,19 +198,40 @@ class AdminController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        return response()->json($request->all());
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
 
-        if($request->hasFile('avatar')){
-            if($admin->avatar){
+            if ($admin->avatar) {
                 Storage::disk('public')->delete($admin->avatar);
             }
 
-            $path = $request->file('avatar')->store('admin/avatars', 'public');
+            $path = $file->store('admin/avatars', 'public');
             $admin->avatar = $path;
         }
 
-        $admin->update($request->all());
+        $admin->save();
 
-        return response()->json(['message' => 'Perfil atualizado com sucesso', 'img_path' => $admin->avatar], 200);
+        return response()->json([
+            'message' => 'Perfil atualizado com sucesso',
+            'user' => [
+                'id' => $admin->id,
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'bio' => $admin->bio,
+                'website' => $admin->website,
+                'social_facebook' => $admin->social_facebook,
+                'social_twitter' => $admin->social_twitter,
+                'social_instagram' => $admin->social_instagram,
+                'social_linkedin' => $admin->social_linkedin,
+                'avatar' => $admin->avatar,
+                'avatar_url' => $admin->avatar_url, // Se tiver o accessor
+            ]
+        ], 200);
+    }
+    public function destroy($id)
+    {
+        $admin = Admin::findOrFail($id);
+        $admin->delete();
+        return response()->json(['message' => 'Admin deletado com sucesso'], 200);
     }
 }
