@@ -404,7 +404,17 @@ class NewsController extends Controller
 
         return response()->json($drafts);
     }
-
+    public function scheduled(){
+        $user = auth()->user();
+        
+        $scheduled = News::where('is_published', false)
+            ->where('published_at', '>', now())
+            ->where('author_id', $user->id)
+            ->with(['category', 'author'])
+            ->orderBy('published_at', 'asc')
+            ->paginate(15);
+        return response()->json($scheduled);
+    }
     public function publish($id)
     {
         $news = News::findOrFail($id);
@@ -473,22 +483,23 @@ class NewsController extends Controller
                 'draft_news' => News::where('is_published', false)->count(),
                 'total_authors' => Admin::authors()->count(),
                 'total_categories' => Category::count(),
-                'total_views' => News::sum('views_count'),
+                'total_tags' => Tag::count(),
+                'total_views' => News::sum('view_count'),
                 'recent_news' => News::published()
                     ->orderBy('published_at', 'desc')
                     ->limit(5)
-                    ->get(['id', 'title', 'published_at', 'views_count'])
+                    ->get(['id', 'title', 'published_at', 'view_count'])
             ];
         } else {
             $stats = [
                 'my_total_news' => $user->news()->count(),
                 'my_published_news' => $user->news()->where('is_published', true)->count(),
                 'my_draft_news' => $user->news()->where('is_published', false)->count(),
-                'my_total_views' => $user->news()->sum('views_count'),
+                'my_total_views' => $user->news()->sum('view_count'),
                 'recent_my_news' => $user->news()
                     ->orderBy('created_at', 'desc')
                     ->limit(5)
-                    ->get(['id', 'title', 'created_at', 'views_count'])
+                    ->get(['id', 'title', 'created_at', 'view_count'])
             ];
         }
         return response()->json($stats);
