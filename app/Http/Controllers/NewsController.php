@@ -62,7 +62,7 @@ class NewsController extends Controller
             ->published()
             ->recent(30)
             ->orderBy('published_at', 'desc')
-            ->limit(10)
+            ->limit(4)
             ->get();
 
         return response()->json($news);
