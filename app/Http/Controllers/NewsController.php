@@ -60,9 +60,9 @@ class NewsController extends Controller
     {
         $news = News::with(['category', 'author'])
             ->published()
-            ->recent(30)
             ->orderBy('published_at', 'desc')
             ->limit(4)
+            ->select('title', 'subtitle', 'slug', 'main_image', 'published_at', 'category_id', 'content')
             ->get();
 
         return response()->json($news);
@@ -107,7 +107,7 @@ class NewsController extends Controller
     }
     public function randomCategory(){
         $category = Category::inRandomOrder()->with(['news' => function($query){
-            $query->published()->recent()->orderBy('published_at', 'desc')->take(3);
+            $query->published()->orderBy('published_at', 'desc')->limit(3);
         }])->take(4)->get();
         return response()->json($category);
     }
@@ -150,11 +150,9 @@ class NewsController extends Controller
         return response()->json(['news' => $news, 'tag' => $tag]);
     }
     public function mostViewed(){
-        $news = News::with(['category', 'author'])
-            ->published()
-            ->recent()
-            ->orderBy('view_count', 'desc')
-            ->take(3)
+        dd('test');
+        $news = News::with(['category'])
+            ->mostViewed()
             ->get();
         return response()->json($news);
     }

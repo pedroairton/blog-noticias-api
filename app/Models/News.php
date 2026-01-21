@@ -44,7 +44,7 @@ class News extends Model
         'deleted_at',
     ];
 
-    protected $appends = ['main_image_url', 'content_with_full_urls'];
+    protected $appends = ['main_image_url', 'content_with_full_urls', 'reading_time'];
 
     protected static function boot()
     {
@@ -107,8 +107,11 @@ class News extends Model
         ->orWhere('description', 'like', '%'.$term.'%')
         ->orWhere('content', 'like', '%'.$term.'%');
     }
-    public function scopeRecent($query, $days = 7){
+    public function scopeRecent($query, $days = 90){
         return $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays($days));
+    }
+    public function scopeMostViewed($query){
+        return $query->published()->recent()->orderBy('view_count', 'desc')->take(3);
     }
     public function getUrlAttribute(){
         return route('news.show', $this->slug);
