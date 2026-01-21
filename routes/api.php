@@ -33,10 +33,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/slug/{slug}', [NewsController::class, 'showBySlug']);
         Route::get('/{id}', [NewsController::class, 'showPublic']);
         Route::post('/{id}/view', [NewsController::class, 'incrementView']);
-
+        Route::get('/category/random', [NewsController::class, 'randomCategory']);
         Route::get('/category/{categorySlug}', [NewsController::class, 'byCategory']);
         Route::get('/author/{authorSlug}', [NewsController::class, 'byAuthor']);
         Route::get('/tag/{tagSlug}', [NewsController::class, 'byTag']);
+        Route::get('/most-viewed', [NewsController::class, 'mostViewed']);
     });
 });
 Route::prefix('v1')->middleware(['auth:sanctum', 'api'])->group(function () {

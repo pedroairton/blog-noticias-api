@@ -105,6 +105,12 @@ class NewsController extends Controller
 
         return response()->json($news);
     }
+    public function randomCategory(){
+        $category = Category::inRandomOrder()->with(['news' => function($query){
+            $query->published()->recent()->orderBy('published_at', 'desc')->take(3);
+        }])->take(4)->get();
+        return response()->json($category);
+    }
     public function byCategory($categorySlug)
     {
         $category = Category::where('slug', $categorySlug)->firstOrFail();
@@ -142,6 +148,15 @@ class NewsController extends Controller
             ->paginate(10);
 
         return response()->json(['news' => $news, 'tag' => $tag]);
+    }
+    public function mostViewed(){
+        $news = News::with(['category', 'author'])
+            ->published()
+            ->recent()
+            ->orderBy('view_count', 'desc')
+            ->take(3)
+            ->get();
+        return response()->json($news);
     }
 
     public function index(Request $request)
