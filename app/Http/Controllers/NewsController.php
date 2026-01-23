@@ -42,7 +42,16 @@ class NewsController extends Controller
             }
         }
 
-        $perPage = $request->get('per_page', 10);
+        if($request->has('limit')) {
+            if($request->limit <= 10) {
+                $perPage = $request->limit;
+            } else {
+                $perPage = 10;
+            }
+        } else {
+            $perPage = $request->get('per_page', 10);
+        }
+
         $news = $query->paginate($perPage);
         return response()->json($news);
     }
