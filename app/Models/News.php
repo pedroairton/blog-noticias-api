@@ -164,7 +164,7 @@ class News extends Model
         return $this->published_at && $this->published_at->diffInDays(now()) <= 3;
     }
     public function incrementViews(){
-        $this->increment('views_count');
+        $this->increment('view_count');
     }
     public function publish(){
         $this->update([

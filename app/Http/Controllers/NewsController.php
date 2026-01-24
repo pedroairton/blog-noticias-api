@@ -98,7 +98,7 @@ class NewsController extends Controller
         $news = News::findOrFail($id);
         $news->incrementViews();
 
-        return response()->json(['message' => 'Visualização registrada', 'views_count' => $news->views_count]);
+        return response()->json(['message' => 'Visualização registrada', 'view_count' => $news->view_count]);
     }
     public function searchPublic(Request $request)
     {
@@ -135,13 +135,13 @@ class NewsController extends Controller
     public function byAuthor($authorSlug)
     {
         $author = Admin::where('slug', $authorSlug)
-            ->where('role', 'author')
+            // ->where('role', 'author')
             ->firstOrFail();
 
         $news = News::with(['category', 'tags'])
             ->published()
             ->where('author_id', $author->id)
-            ->orderBy('published', 'desc')
+            ->orderBy('published_at', 'desc')
             ->paginate(10);
 
         return response()->json(['author' => $author, 'news' => $news]);
@@ -159,11 +159,16 @@ class NewsController extends Controller
         return response()->json(['news' => $news, 'tag' => $tag]);
     }
     public function mostViewed(){
-        dd('test');
         $news = News::with(['category'])
             ->mostViewed()
             ->get();
         return response()->json($news);
+    }
+    public function categoriesPublic(){
+        $categories = Category::where('is_active', true)
+        ->select('name', 'slug')
+        ->get();
+        return response()->json($categories);
     }
 
     public function index(Request $request)
